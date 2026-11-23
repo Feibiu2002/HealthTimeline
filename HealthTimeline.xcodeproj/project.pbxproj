@@ -1,0 +1,257 @@
+// !$*UTF8*$!
+{
+	classes = {
+	};
+	objectVersion = "56";
+	archiveVersion = "1";
+	objects = {
+		A4E100000000000000000501 = {
+			buildConfigurationList = "A4E100000000000000000601";
+			targets = ("A4E100000000000000000401");
+			developmentRegion = "zh-Hans";
+			knownRegions = ("zh-Hans", "en", "Base");
+			isa = "PBXProject";
+			compatibilityVersion = "Xcode 14.0";
+			productRefGroup = "A4E100000000000000000204";
+			projectDirPath = "";
+			attributes = {
+				LastUpgradeCheck = "1600";
+				BuildIndependentTargetsInParallel = "YES";
+				TargetAttributes = {
+					A4E100000000000000000401 = {
+						CreatedOnToolsVersion = "27.2";
+					};
+				};
+			};
+			hasScannedForEncodings = "0";
+			projectRoot = "";
+			mainGroup = "A4E100000000000000000201";
+		};
+		A4E100000000000000000302 = {
+			isa = "PBXFrameworksBuildPhase";
+			buildActionMask = "2147483647";
+			files = ();
+			runOnlyForDeploymentPostprocessing = "0";
+		};
+		A4E100000000000000000703 = {
+			isa = "XCBuildConfiguration";
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
+				CODE_SIGN_STYLE = "Automatic";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = "NO";
+				INFOPLIST_FILE = "HealthTimeline/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				MARKETING_VERSION = "1.0";
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.healthtimeline.native";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = "5.0";
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = "Debug";
+		};
+		A4E100000000000000000601 = {
+			isa = "XCConfigurationList";
+			defaultConfigurationIsVisible = "0";
+			defaultConfigurationName = "Release";
+			buildConfigurations = ("A4E100000000000000000701", "A4E100000000000000000702");
+		};
+		A4E100000000000000000701 = {
+			isa = "XCBuildConfiguration";
+			buildSettings = {
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				ONLY_ACTIVE_ARCH = "YES";
+				CLANG_ENABLE_MODULES = "YES";
+				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SDKROOT = "iphoneos";
+				ENABLE_TESTABILITY = "YES";
+			};
+			name = "Debug";
+		};
+		A4E100000000000000000201 = {
+			isa = "PBXGroup";
+			sourceTree = "<group>";
+			children = ("A4E100000000000000000202", "A4E100000000000000000204");
+		};
+		A4E100000000000000000303 = {
+			isa = "PBXResourcesBuildPhase";
+			buildActionMask = "2147483647";
+			files = ("2D9BBCDE30B52FF23EC18313");
+			runOnlyForDeploymentPostprocessing = "0";
+		};
+		A4E100000000000000000704 = {
+			isa = "XCBuildConfiguration";
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
+				CODE_SIGN_STYLE = "Automatic";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = "NO";
+				INFOPLIST_FILE = "HealthTimeline/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				MARKETING_VERSION = "1.0";
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.healthtimeline.native";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = "5.0";
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = "Release";
+		};
+		A4E100000000000000000109 = {
+			path = "HealthTimeline.app";
+			isa = "PBXFileReference";
+			includeInIndex = "0";
+			explicitFileType = "wrapper.application";
+			sourceTree = "BUILT_PRODUCTS_DIR";
+		};
+		A4E100000000000000000301 = {
+			isa = "PBXSourcesBuildPhase";
+			buildActionMask = "2147483647";
+			files = ("F5D7C023C89113D69192D320", "D396BB80B89423D01A4C9F44", "74492380FC6FFE1B388496AD", "23A96E8D2AEBDEB038A7458A", "48DD9D63EA7D4662C7BBA3B4", "06AAD57020E855423AFBF096", "98E9A5208B59082C037F4C6D");
+			runOnlyForDeploymentPostprocessing = "0";
+		};
+		A4E100000000000000000602 = {
+			isa = "XCConfigurationList";
+			defaultConfigurationIsVisible = "0";
+			defaultConfigurationName = "Release";
+			buildConfigurations = ("A4E100000000000000000703", "A4E100000000000000000704");
+		};
+		A4E100000000000000000204 = {
+			isa = "PBXGroup";
+			name = "Products";
+			children = ("A4E100000000000000000109");
+			sourceTree = "<group>";
+		};
+		A4E100000000000000000702 = {
+			isa = "XCBuildConfiguration";
+			buildSettings = {
+				SDKROOT = "iphoneos";
+				SWIFT_COMPILATION_MODE = "wholemodule";
+				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+				VALIDATE_PRODUCT = "YES";
+				CLANG_ENABLE_MODULES = "YES";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+			};
+			name = "Release";
+		};
+		A4E100000000000000000401 = {
+			buildConfigurationList = "A4E100000000000000000602";
+			productReference = "A4E100000000000000000109";
+			productType = "com.apple.product-type.application";
+			productName = "HealthTimeline";
+			isa = "PBXNativeTarget";
+			buildPhases = ("A4E100000000000000000301", "A4E100000000000000000302", "A4E100000000000000000303");
+			dependencies = ();
+			name = "HealthTimeline";
+			buildRules = ();
+		};
+		A4E100000000000000000202 = {
+			path = "HealthTimeline";
+			isa = "PBXGroup";
+			children = ("436F7B3D5C99C592B3DC03C5", "63DF1D62228C8E24F0EFEC1A", "183134C0A6AFCAF4CAA9DA8B", "5129A46ABE49E7F3717548B4");
+			sourceTree = "<group>";
+		};
+		509457F1FFF98F67BFE7EF74 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "ArchiveCharts.swift";
+			sourceTree = "<group>";
+		};
+		AAA768454973A1918054FE40 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "ArchiveScreen.swift";
+			sourceTree = "<group>";
+		};
+		93B917CE7C76735D2E193772 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "HealthTimelineApp.swift";
+			sourceTree = "<group>";
+		};
+		80843B0DFB04363B3BF607DC = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "SectionReports.swift";
+			sourceTree = "<group>";
+		};
+		436F7B3D5C99C592B3DC03C5 = {
+			isa = "PBXGroup";
+			children = ("509457F1FFF98F67BFE7EF74", "AAA768454973A1918054FE40", "93B917CE7C76735D2E193772", "80843B0DFB04363B3BF607DC");
+			path = "App";
+			sourceTree = "<group>";
+		};
+		99086D1DEB9AC1F7846CC884 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "HealthImport.swift";
+			sourceTree = "<group>";
+		};
+		FC426C6D7FA57DEB274CE8D0 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "HealthReport.swift";
+			sourceTree = "<group>";
+		};
+		BAEBD559293AEDD42DC5A162 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "sourcecode.swift";
+			path = "HealthZip.swift";
+			sourceTree = "<group>";
+		};
+		63DF1D62228C8E24F0EFEC1A = {
+			isa = "PBXGroup";
+			children = ("99086D1DEB9AC1F7846CC884", "FC426C6D7FA57DEB274CE8D0", "BAEBD559293AEDD42DC5A162");
+			path = "Core";
+			sourceTree = "<group>";
+		};
+		183134C0A6AFCAF4CAA9DA8B = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "folder.assetcatalog";
+			path = "Assets.xcassets";
+			sourceTree = "<group>";
+		};
+		5129A46ABE49E7F3717548B4 = {
+			isa = "PBXFileReference";
+			lastKnownFileType = "text.plist.xml";
+			path = "Info.plist";
+			sourceTree = "<group>";
+		};
+		F5D7C023C89113D69192D320 = {
+			isa = "PBXBuildFile";
+			fileRef = "509457F1FFF98F67BFE7EF74";
+		};
+		D396BB80B89423D01A4C9F44 = {
+			isa = "PBXBuildFile";
+			fileRef = "AAA768454973A1918054FE40";
+		};
+		74492380FC6FFE1B388496AD = {
+			isa = "PBXBuildFile";
+			fileRef = "93B917CE7C76735D2E193772";
+		};
+		23A96E8D2AEBDEB038A7458A = {
+			isa = "PBXBuildFile";
+			fileRef = "80843B0DFB04363B3BF607DC";
+		};
+		48DD9D63EA7D4662C7BBA3B4 = {
+			isa = "PBXBuildFile";
+			fileRef = "99086D1DEB9AC1F7846CC884";
+		};
+		06AAD57020E855423AFBF096 = {
+			isa = "PBXBuildFile";
+			fileRef = "FC426C6D7FA57DEB274CE8D0";
+		};
+		98E9A5208B59082C037F4C6D = {
+			isa = "PBXBuildFile";
+			fileRef = "BAEBD559293AEDD42DC5A162";
+		};
+		2D9BBCDE30B52FF23EC18313 = {
+			isa = "PBXBuildFile";
+			fileRef = "183134C0A6AFCAF4CAA9DA8B";
+		};
+	};
+	rootObject = "A4E100000000000000000501";
+}
