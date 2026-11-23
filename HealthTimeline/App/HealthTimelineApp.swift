@@ -136,6 +136,7 @@ private struct ImportLanding: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(ArchiveStyle.solidAccent)
                     .controlSize(.large)
                     Text("打开「健康」的个人资料，点「导出所有健康数据」，并将 ZIP 存到「文件」。")
                         .foregroundStyle(.secondary)

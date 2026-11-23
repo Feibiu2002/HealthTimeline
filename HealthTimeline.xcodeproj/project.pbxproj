@@ -1,257 +1,268 @@
 // !$*UTF8*$!
 {
+	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = "56";
-	archiveVersion = "1";
+	objectVersion = 56;
 	objects = {
-		A4E100000000000000000501 = {
-			buildConfigurationList = "A4E100000000000000000601";
-			targets = ("A4E100000000000000000401");
-			developmentRegion = "zh-Hans";
-			knownRegions = ("zh-Hans", "en", "Base");
-			isa = "PBXProject";
-			compatibilityVersion = "Xcode 14.0";
-			productRefGroup = "A4E100000000000000000204";
-			projectDirPath = "";
+
+/* Begin PBXBuildFile section */
+		06AAD57020E855423AFBF096 /* HealthReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC426C6D7FA57DEB274CE8D0 /* HealthReport.swift */; };
+		23A96E8D2AEBDEB038A7458A /* SectionReports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80843B0DFB04363B3BF607DC /* SectionReports.swift */; };
+		2D9BBCDE30B52FF23EC18313 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 183134C0A6AFCAF4CAA9DA8B /* Assets.xcassets */; };
+		48DD9D63EA7D4662C7BBA3B4 /* HealthImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086D1DEB9AC1F7846CC884 /* HealthImport.swift */; };
+		74492380FC6FFE1B388496AD /* HealthTimelineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B917CE7C76735D2E193772 /* HealthTimelineApp.swift */; };
+		98E9A5208B59082C037F4C6D /* HealthZip.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAEBD559293AEDD42DC5A162 /* HealthZip.swift */; };
+		D396BB80B89423D01A4C9F44 /* ArchiveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA768454973A1918054FE40 /* ArchiveScreen.swift */; };
+		F5D7C023C89113D69192D320 /* ArchiveCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509457F1FFF98F67BFE7EF74 /* ArchiveCharts.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		183134C0A6AFCAF4CAA9DA8B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		509457F1FFF98F67BFE7EF74 /* ArchiveCharts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveCharts.swift; sourceTree = "<group>"; };
+		5129A46ABE49E7F3717548B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		80843B0DFB04363B3BF607DC /* SectionReports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionReports.swift; sourceTree = "<group>"; };
+		93B917CE7C76735D2E193772 /* HealthTimelineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthTimelineApp.swift; sourceTree = "<group>"; };
+		99086D1DEB9AC1F7846CC884 /* HealthImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthImport.swift; sourceTree = "<group>"; };
+		A4E100000000000000000109 /* HealthTimeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthTimeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA768454973A1918054FE40 /* ArchiveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveScreen.swift; sourceTree = "<group>"; };
+		BAEBD559293AEDD42DC5A162 /* HealthZip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthZip.swift; sourceTree = "<group>"; };
+		FC426C6D7FA57DEB274CE8D0 /* HealthReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthReport.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A4E100000000000000000302 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		436F7B3D5C99C592B3DC03C5 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				509457F1FFF98F67BFE7EF74 /* ArchiveCharts.swift */,
+				AAA768454973A1918054FE40 /* ArchiveScreen.swift */,
+				93B917CE7C76735D2E193772 /* HealthTimelineApp.swift */,
+				80843B0DFB04363B3BF607DC /* SectionReports.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		63DF1D62228C8E24F0EFEC1A /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				99086D1DEB9AC1F7846CC884 /* HealthImport.swift */,
+				FC426C6D7FA57DEB274CE8D0 /* HealthReport.swift */,
+				BAEBD559293AEDD42DC5A162 /* HealthZip.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		A4E100000000000000000201 = {
+			isa = PBXGroup;
+			children = (
+				A4E100000000000000000202 /* HealthTimeline */,
+				A4E100000000000000000204 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A4E100000000000000000202 /* HealthTimeline */ = {
+			isa = PBXGroup;
+			children = (
+				436F7B3D5C99C592B3DC03C5 /* App */,
+				63DF1D62228C8E24F0EFEC1A /* Core */,
+				183134C0A6AFCAF4CAA9DA8B /* Assets.xcassets */,
+				5129A46ABE49E7F3717548B4 /* Info.plist */,
+			);
+			path = HealthTimeline;
+			sourceTree = "<group>";
+		};
+		A4E100000000000000000204 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A4E100000000000000000109 /* HealthTimeline.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A4E100000000000000000401 /* HealthTimeline */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A4E100000000000000000602 /* Build configuration list for PBXNativeTarget "HealthTimeline" */;
+			buildPhases = (
+				A4E100000000000000000301 /* Sources */,
+				A4E100000000000000000302 /* Frameworks */,
+				A4E100000000000000000303 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HealthTimeline;
+			productName = HealthTimeline;
+			productReference = A4E100000000000000000109 /* HealthTimeline.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A4E100000000000000000501 /* Project object */ = {
+			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = "1600";
-				BuildIndependentTargetsInParallel = "YES";
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					A4E100000000000000000401 = {
-						CreatedOnToolsVersion = "27.2";
+						CreatedOnToolsVersion = 27.2;
 					};
 				};
 			};
-			hasScannedForEncodings = "0";
+			buildConfigurationList = A4E100000000000000000601 /* Build configuration list for PBXProject "HealthTimeline" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				"zh-Hans",
+				en,
+				Base,
+			);
+			mainGroup = A4E100000000000000000201;
+			productRefGroup = A4E100000000000000000204 /* Products */;
+			projectDirPath = "";
 			projectRoot = "";
-			mainGroup = "A4E100000000000000000201";
+			targets = (
+				A4E100000000000000000401 /* HealthTimeline */,
+			);
 		};
-		A4E100000000000000000302 = {
-			isa = "PBXFrameworksBuildPhase";
-			buildActionMask = "2147483647";
-			files = ();
-			runOnlyForDeploymentPostprocessing = "0";
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A4E100000000000000000303 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D9BBCDE30B52FF23EC18313 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A4E100000000000000000703 = {
-			isa = "XCBuildConfiguration";
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A4E100000000000000000301 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F5D7C023C89113D69192D320 /* ArchiveCharts.swift in Sources */,
+				D396BB80B89423D01A4C9F44 /* ArchiveScreen.swift in Sources */,
+				74492380FC6FFE1B388496AD /* HealthTimelineApp.swift in Sources */,
+				23A96E8D2AEBDEB038A7458A /* SectionReports.swift in Sources */,
+				48DD9D63EA7D4662C7BBA3B4 /* HealthImport.swift in Sources */,
+				06AAD57020E855423AFBF096 /* HealthReport.swift in Sources */,
+				98E9A5208B59082C037F4C6D /* HealthZip.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A4E100000000000000000701 /* Debug */ = {
+			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
-				CODE_SIGN_STYLE = "Automatic";
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = "NO";
-				INFOPLIST_FILE = "HealthTimeline/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
-				MARKETING_VERSION = "1.0";
-				PRODUCT_BUNDLE_IDENTIFIER = "dev.healthtimeline.native";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_VERSION = "5.0";
-				TARGETED_DEVICE_FAMILY = "1";
-			};
-			name = "Debug";
-		};
-		A4E100000000000000000601 = {
-			isa = "XCConfigurationList";
-			defaultConfigurationIsVisible = "0";
-			defaultConfigurationName = "Release";
-			buildConfigurations = ("A4E100000000000000000701", "A4E100000000000000000702");
-		};
-		A4E100000000000000000701 = {
-			isa = "XCBuildConfiguration";
-			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				ONLY_ACTIVE_ARCH = "YES";
-				CLANG_ENABLE_MODULES = "YES";
-				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
-				DEBUG_INFORMATION_FORMAT = "dwarf";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SDKROOT = "iphoneos";
-				ENABLE_TESTABILITY = "YES";
 			};
-			name = "Debug";
+			name = Debug;
 		};
-		A4E100000000000000000201 = {
-			isa = "PBXGroup";
-			sourceTree = "<group>";
-			children = ("A4E100000000000000000202", "A4E100000000000000000204");
-		};
-		A4E100000000000000000303 = {
-			isa = "PBXResourcesBuildPhase";
-			buildActionMask = "2147483647";
-			files = ("2D9BBCDE30B52FF23EC18313");
-			runOnlyForDeploymentPostprocessing = "0";
-		};
-		A4E100000000000000000704 = {
-			isa = "XCBuildConfiguration";
+		A4E100000000000000000702 /* Release */ = {
+			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
-				CODE_SIGN_STYLE = "Automatic";
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A4E100000000000000000703 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = "NO";
-				INFOPLIST_FILE = "HealthTimeline/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
-				MARKETING_VERSION = "1.0";
-				PRODUCT_BUNDLE_IDENTIFIER = "dev.healthtimeline.native";
+
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HealthTimeline/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.healthtimeline.native;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_VERSION = "5.0";
-				TARGETED_DEVICE_FAMILY = "1";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = "Release";
+			name = Debug;
 		};
-		A4E100000000000000000109 = {
-			path = "HealthTimeline.app";
-			isa = "PBXFileReference";
-			includeInIndex = "0";
-			explicitFileType = "wrapper.application";
-			sourceTree = "BUILT_PRODUCTS_DIR";
-		};
-		A4E100000000000000000301 = {
-			isa = "PBXSourcesBuildPhase";
-			buildActionMask = "2147483647";
-			files = ("F5D7C023C89113D69192D320", "D396BB80B89423D01A4C9F44", "74492380FC6FFE1B388496AD", "23A96E8D2AEBDEB038A7458A", "48DD9D63EA7D4662C7BBA3B4", "06AAD57020E855423AFBF096", "98E9A5208B59082C037F4C6D");
-			runOnlyForDeploymentPostprocessing = "0";
-		};
-		A4E100000000000000000602 = {
-			isa = "XCConfigurationList";
-			defaultConfigurationIsVisible = "0";
-			defaultConfigurationName = "Release";
-			buildConfigurations = ("A4E100000000000000000703", "A4E100000000000000000704");
-		};
-		A4E100000000000000000204 = {
-			isa = "PBXGroup";
-			name = "Products";
-			children = ("A4E100000000000000000109");
-			sourceTree = "<group>";
-		};
-		A4E100000000000000000702 = {
-			isa = "XCBuildConfiguration";
+		A4E100000000000000000704 /* Release */ = {
+			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = "iphoneos";
-				SWIFT_COMPILATION_MODE = "wholemodule";
-				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
-				VALIDATE_PRODUCT = "YES";
-				CLANG_ENABLE_MODULES = "YES";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HealthTimeline/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.healthtimeline.native;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = "Release";
+			name = Release;
 		};
-		A4E100000000000000000401 = {
-			buildConfigurationList = "A4E100000000000000000602";
-			productReference = "A4E100000000000000000109";
-			productType = "com.apple.product-type.application";
-			productName = "HealthTimeline";
-			isa = "PBXNativeTarget";
-			buildPhases = ("A4E100000000000000000301", "A4E100000000000000000302", "A4E100000000000000000303");
-			dependencies = ();
-			name = "HealthTimeline";
-			buildRules = ();
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A4E100000000000000000601 /* Build configuration list for PBXProject "HealthTimeline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A4E100000000000000000701 /* Debug */,
+				A4E100000000000000000702 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-		A4E100000000000000000202 = {
-			path = "HealthTimeline";
-			isa = "PBXGroup";
-			children = ("436F7B3D5C99C592B3DC03C5", "63DF1D62228C8E24F0EFEC1A", "183134C0A6AFCAF4CAA9DA8B", "5129A46ABE49E7F3717548B4");
-			sourceTree = "<group>";
+		A4E100000000000000000602 /* Build configuration list for PBXNativeTarget "HealthTimeline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A4E100000000000000000703 /* Debug */,
+				A4E100000000000000000704 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-		509457F1FFF98F67BFE7EF74 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "ArchiveCharts.swift";
-			sourceTree = "<group>";
-		};
-		AAA768454973A1918054FE40 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "ArchiveScreen.swift";
-			sourceTree = "<group>";
-		};
-		93B917CE7C76735D2E193772 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "HealthTimelineApp.swift";
-			sourceTree = "<group>";
-		};
-		80843B0DFB04363B3BF607DC = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "SectionReports.swift";
-			sourceTree = "<group>";
-		};
-		436F7B3D5C99C592B3DC03C5 = {
-			isa = "PBXGroup";
-			children = ("509457F1FFF98F67BFE7EF74", "AAA768454973A1918054FE40", "93B917CE7C76735D2E193772", "80843B0DFB04363B3BF607DC");
-			path = "App";
-			sourceTree = "<group>";
-		};
-		99086D1DEB9AC1F7846CC884 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "HealthImport.swift";
-			sourceTree = "<group>";
-		};
-		FC426C6D7FA57DEB274CE8D0 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "HealthReport.swift";
-			sourceTree = "<group>";
-		};
-		BAEBD559293AEDD42DC5A162 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "sourcecode.swift";
-			path = "HealthZip.swift";
-			sourceTree = "<group>";
-		};
-		63DF1D62228C8E24F0EFEC1A = {
-			isa = "PBXGroup";
-			children = ("99086D1DEB9AC1F7846CC884", "FC426C6D7FA57DEB274CE8D0", "BAEBD559293AEDD42DC5A162");
-			path = "Core";
-			sourceTree = "<group>";
-		};
-		183134C0A6AFCAF4CAA9DA8B = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "folder.assetcatalog";
-			path = "Assets.xcassets";
-			sourceTree = "<group>";
-		};
-		5129A46ABE49E7F3717548B4 = {
-			isa = "PBXFileReference";
-			lastKnownFileType = "text.plist.xml";
-			path = "Info.plist";
-			sourceTree = "<group>";
-		};
-		F5D7C023C89113D69192D320 = {
-			isa = "PBXBuildFile";
-			fileRef = "509457F1FFF98F67BFE7EF74";
-		};
-		D396BB80B89423D01A4C9F44 = {
-			isa = "PBXBuildFile";
-			fileRef = "AAA768454973A1918054FE40";
-		};
-		74492380FC6FFE1B388496AD = {
-			isa = "PBXBuildFile";
-			fileRef = "93B917CE7C76735D2E193772";
-		};
-		23A96E8D2AEBDEB038A7458A = {
-			isa = "PBXBuildFile";
-			fileRef = "80843B0DFB04363B3BF607DC";
-		};
-		48DD9D63EA7D4662C7BBA3B4 = {
-			isa = "PBXBuildFile";
-			fileRef = "99086D1DEB9AC1F7846CC884";
-		};
-		06AAD57020E855423AFBF096 = {
-			isa = "PBXBuildFile";
-			fileRef = "FC426C6D7FA57DEB274CE8D0";
-		};
-		98E9A5208B59082C037F4C6D = {
-			isa = "PBXBuildFile";
-			fileRef = "BAEBD559293AEDD42DC5A162";
-		};
-		2D9BBCDE30B52FF23EC18313 = {
-			isa = "PBXBuildFile";
-			fileRef = "183134C0A6AFCAF4CAA9DA8B";
-		};
+/* End XCConfigurationList section */
 	};
-	rootObject = "A4E100000000000000000501";
+	rootObject = A4E100000000000000000501 /* Project object */;
 }

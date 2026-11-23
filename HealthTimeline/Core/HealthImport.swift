@@ -160,9 +160,7 @@ private final class HealthXMLCollector: NSObject, XMLParserDelegate {
         case "SleepAnalysis":
             guard let stage = SleepStage(exportValue: value), let end = clock.time(fields["endDate"]),
                   end.second > start.second else { return }
-            let night = start.hour < 12 ? start.day.adding(-1) : start.day
-            let lower = start.localSecond - night.ordinal * 86_400
-            sleep[night, default: []].append(SleepSpan(lower: lower, upper: lower + end.second - start.second, stage: stage))
+            addSleep(from: start, to: end, stage: stage)
         case "AppleStandHour":
             if value.hasSuffix("Stood") || value == "0" {
                 days[start.day, default: .init()].standingHours += 1
@@ -206,6 +204,20 @@ private final class HealthXMLCollector: NSObject, XMLParserDelegate {
             remaining -= length
             day = day.adding(1)
             localStart = 0
+        }
+    }
+
+    private func addSleep(from start: HealthTime, to end: HealthTime, stage: SleepStage) {
+        let timeline = SleepNight.timeline
+        var day = start.secondOfDay < timeline.lowerBound ? start.day.adding(-1) : start.day
+        var lower = start.localSecond - day.ordinal * 86_400
+        var remaining = end.second - start.second
+        while remaining > 0 {
+            let length = min(timeline.upperBound - lower, remaining)
+            sleep[day, default: []].append(SleepSpan(lower: lower, upper: lower + length, stage: stage))
+            remaining -= length
+            lower = timeline.lowerBound
+            day = day.adding(1)
         }
     }
 
@@ -355,24 +367,29 @@ private final class HealthXMLCollector: NSObject, XMLParserDelegate {
         return result
     }
 
-    private func finalizeSleep(_ records: [SleepSpan]) -> SleepNight? {
-        let asleep = records.filter { $0.stage.asleep }
-        let bounds = asleep.isEmpty ? records : asleep
-        guard let lower = bounds.map(\.lower).min(), let upper = bounds.map(\.upper).max() else { return nil }
+    private func finalizeSleep(_ records: [SleepSpan]) -> SleepNight {
         let order: [SleepStage] = [.deep, .rem, .core, .awake, .unspecified, .inBed]
         let edges = records.flatMap {
             [SleepEdge(second: $0.lower, stage: $0.stage, change: 1), SleepEdge(second: $0.upper, stage: $0.stage, change: -1)]
         }.sorted { $0.second < $1.second }
         var counts: [SleepStage: Int] = [:]
         var stages: [SleepStage: Int] = [:]
+        var intervals: [Range<Int>] = []
         var previous = edges.first?.second ?? 0
         for edge in edges {
             if edge.second > previous, let stage = order.first(where: { counts[$0, default: 0] > 0 }) {
                 stages[stage, default: 0] += edge.second - previous
+                if stage.asleep {
+                    if let last = intervals.last, last.upperBound == previous {
+                        intervals[intervals.count - 1] = last.lowerBound..<edge.second
+                    } else {
+                        intervals.append(previous..<edge.second)
+                    }
+                }
             }
             counts[edge.stage, default: 0] += edge.change
             previous = edge.second
         }
-        return SleepNight(startHour: Double(lower) / 3_600, endHour: Double(upper) / 3_600, stages: stages)
+        return SleepNight(intervals: intervals, stages: stages)
     }
 }

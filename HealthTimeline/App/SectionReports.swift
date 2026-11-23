@@ -50,7 +50,7 @@ private struct OverviewReport: View {
             HeadlineStat(title: "有记录的日期", value: "\(slice.days.count.formatted()) 天"),
             metricStat(slice, .steps),
             metricStat(slice, .heartRate, label: "平均心率"),
-            HeadlineStat(title: "平均每晚睡眠", value: averageSleep),
+            HeadlineStat(title: "平均每日睡眠", value: averageSleep),
             metricStat(slice, .activeEnergy),
             metricStat(slice, .walkingDistance)
         ])
@@ -67,7 +67,7 @@ private struct OverviewReport: View {
             return ReportPoint(day: entry.day, value: Double(hours) / 3_600)
         }
         if !dailySleep.isEmpty {
-            TrendCard(title: "夜间睡眠趋势", points: dailySleep, unit: "小时")
+            TrendCard(title: "每日睡眠趋势", points: dailySleep, unit: "小时")
         }
         MetricTrends(slice: slice, metrics: [.weight, .height, .water, .caffeine, .mindfulness, .sexualActivity])
         if slice.days.isEmpty {
@@ -200,8 +200,12 @@ private struct HeartReport: View {
             if !slice.heartHistogram.isEmpty {
                 ReportCard("心率分布", caption: "每格 5 bpm") {
                     Chart(slice.heartHistogram.sorted(by: { $0.key < $1.key }), id: \.key) { bin in
-                        BarMark(x: .value("bpm", bin.key), y: .value("采样数", bin.value))
-                            .foregroundStyle(ArchiveStyle.accent.gradient)
+                        RectangleMark(xStart: .value("bpm", Double(bin.key) + 0.25),
+                                      xEnd: .value("bpm", Double(bin.key) + 4.75),
+                                      yStart: .value("采样数", 0), yEnd: .value("采样数", bin.value))
+                            .foregroundStyle(ArchiveStyle.accent)
+                            .accessibilityLabel("\(bin.key) 至 \(bin.key + 5) bpm")
+                            .accessibilityValue("\(bin.value.formatted()) 条")
                     }
                     .chartXAxisLabel("bpm")
                     .frame(height: 150)
@@ -272,15 +276,17 @@ private struct SleepReport: View {
             if !rows.isEmpty {
                 let sum = rows.reduce(0) { $0 + $1.sleep.sleepSeconds }
                 StatGrid(stats: [
-                    HeadlineStat(title: "记录夜数", value: "\(rows.count.formatted()) 夜"),
-                    HeadlineStat(title: "平均每晚", value: ArchiveFormat.span(Double(sum) / Double(rows.count)))
+                    HeadlineStat(title: "睡眠记录日", value: "\(rows.count.formatted()) 天"),
+                    HeadlineStat(title: "平均每日", value: ArchiveFormat.span(Double(sum) / Double(rows.count)))
                 ])
                 SleepTimeline(rows: Array(rows.suffix(14)))
                 let points = rows.map { ReportPoint(day: $0.day, value: Double($0.sleep.sleepSeconds) / 3_600) }
-                TrendCard(title: "每夜睡眠时长", points: points, unit: "小时", bars: true)
+                TrendCard(title: "每日睡眠时长", points: points, unit: "小时", bars: true)
                 SleepStageCard(rows: rows)
                 let drift = monthlyBedtimes(rows)
-                if !drift.isEmpty { TrendCard(title: "每月平均入睡时间", points: drift, unit: "小时制，24 表示午夜") }
+                if !drift.isEmpty {
+                    TrendCard(title: "每月平均入睡时间", points: drift, unit: "主要睡眠时段", period: .month, showsClockTime: true)
+                }
                 PeakCard(title: "睡眠记录", values: [peak(points, label: "最长睡眠", unit: "小时")].compactMap { $0 })
             }
             MetricTrends(slice: slice, metrics: [.sleepGoal, .wristTemperature, .breathingDisturbances])
@@ -290,33 +296,100 @@ private struct SleepReport: View {
     private func monthlyBedtimes(_ nights: [NightEntry]) -> [ReportPoint] {
         let months = Dictionary(grouping: nights) { month($0.day) }
         return months.keys.sorted().compactMap { day in
-            guard let rows = months[day] else { return nil }
-            return ReportPoint(day: day, value: rows.reduce(0) { $0 + $1.sleep.startHour } / Double(rows.count))
+            guard let starts = months[day]?.compactMap(\.sleep.primaryStartHour), !starts.isEmpty else { return nil }
+            return ReportPoint(day: day, value: starts.reduce(0, +) / Double(starts.count))
         }
     }
 }
 
 private struct SleepTimeline: View {
     let rows: [NightEntry]
+    @ScaledMetric(relativeTo: .caption) private var dateWidth: CGFloat = 45
+    @ScaledMetric(relativeTo: .caption) private var rowHeight: CGFloat = 23
+    @ScaledMetric(relativeTo: .caption2) private var tickWidth: CGFloat = 36
+
+    private let hours = [12, 18, 24, 30, 36]
 
     var body: some View {
-        ReportCard("入睡到起床", caption: "最近 \(rows.count) 夜") {
-            Chart(rows) { row in
-                BarMark(xStart: .value("入睡", row.sleep.startHour),
-                        xEnd: .value("起床", row.sleep.endHour),
-                        y: .value("日期", ArchiveFormat.date(row.day)))
-                    .foregroundStyle(ArchiveStyle.accent.gradient)
-                    .accessibilityValue("\(ArchiveFormat.hour(row.sleep.startHour)) 到 \(ArchiveFormat.hour(row.sleep.endHour))")
-            }
-            .chartXScale(domain: 12...max(36, rows.map(\.sleep.endHour).max() ?? 36))
-            .chartXAxis {
-                AxisMarks(values: [12, 18, 24, 30, 36].map(Double.init)) { value in
-                    AxisGridLine()
-                    if let hour = value.as(Double.self) { AxisValueLabel { Text(ArchiveFormat.hour(hour)) } }
+        ReportCard("睡眠时间轴", caption: "最近 \(rows.count) 个记录日 · 当天中午至次日中午") {
+            VStack(spacing: 0) {
+                timeAxis
+                ForEach(rows) { row in
+                    HStack(spacing: 8) {
+                        Text(ArchiveFormat.shortDate(row.day))
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                            .frame(width: dateWidth, alignment: .trailing)
+                        plot(row.sleep.intervals)
+                    }
+                    .frame(height: rowHeight)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(ArchiveFormat.date(row.day))
+                    .accessibilityValue(accessibleIntervals(row.sleep))
                 }
             }
-            .frame(height: CGFloat(55 + rows.count * 22))
         }
+    }
+
+    private var timeAxis: some View {
+        HStack(spacing: 8) {
+            Color.clear.frame(width: dateWidth)
+            GeometryReader { geometry in
+                let width = geometry.size.width
+                let innerHours = width >= 6 * tickWidth ? [18, 24, 30] : width >= 3 * tickWidth ? [24] : []
+                ZStack {
+                    HStack {
+                        tick(12)
+                        Spacer(minLength: 0)
+                        tick(36)
+                    }
+                    ForEach(innerHours, id: \.self) { hour in
+                        tick(hour).position(x: width * CGFloat(hour - 12) / 24, y: geometry.size.height / 2)
+                    }
+                }
+                .frame(height: geometry.size.height)
+            }
+        }
+        .frame(height: rowHeight)
+        .accessibilityHidden(true)
+    }
+
+    private func tick(_ hour: Int) -> some View {
+        Text(ArchiveFormat.hour(Double(hour)))
+            .font(.caption2.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .fixedSize()
+    }
+
+    private func plot(_ intervals: [Range<Int>]) -> some View {
+        Canvas { context, size in
+            var grid = Path()
+            for hour in hours {
+                let x = size.width * CGFloat(hour - 12) / 24
+                grid.move(to: CGPoint(x: x, y: 0))
+                grid.addLine(to: CGPoint(x: x, y: size.height))
+            }
+            grid.move(to: CGPoint(x: 0, y: size.height - 0.25))
+            grid.addLine(to: CGPoint(x: size.width, y: size.height - 0.25))
+            context.stroke(grid, with: .color(Color(uiColor: .separator)), lineWidth: 0.5)
+
+            let scale = size.width / CGFloat(SleepNight.timeline.count)
+            let height = size.height * 0.35
+            for interval in intervals {
+                let rect = CGRect(x: CGFloat(interval.lowerBound - SleepNight.timeline.lowerBound) * scale,
+                                  y: (size.height - height) / 2, width: CGFloat(interval.count) * scale, height: height)
+                context.fill(Path(roundedRect: rect, cornerRadius: min(3, rect.width / 2)), with: .color(ArchiveStyle.accent))
+            }
+        }
+    }
+
+    private func accessibleIntervals(_ night: SleepNight) -> String {
+        let times = night.intervals.map { interval in
+            let start = ArchiveFormat.hour(Double(interval.lowerBound) / 3_600)
+            let end = ArchiveFormat.hour(Double(interval.upperBound) / 3_600)
+            return "\(start) 到 \(end)"
+        }
+        return ([ArchiveFormat.span(Double(night.sleepSeconds))] + times).joined(separator: "，")
     }
 }
 
@@ -461,7 +534,7 @@ private struct EnergyReport: View {
             MetricTrends(slice: slice, metrics: available.filter { $0 != .flights })
             let flights = slice.points(.flights)
             if !flights.isEmpty {
-                TrendCard(title: "每月爬楼层数", points: monthlyTotals(flights), unit: "层", totals: true, bars: true)
+                TrendCard(title: "每月爬楼层数", points: monthlyTotals(flights), unit: "层", totals: true, bars: true, period: .month)
             }
             if slice.standingHours > 0 || slice.idleHours > 0 {
                 RankCard(title: "站立小时", values: [
@@ -558,7 +631,7 @@ private struct PeakCard: View {
         if !values.isEmpty {
             ReportCard(title) {
                 ForEach(values) { value in
-                    LabeledContent(value.title, value: value.value).font(.subheadline)
+                    ReportValueRow(name: value.title, value: value.value)
                 }
             }
         }

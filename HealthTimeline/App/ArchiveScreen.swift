@@ -49,7 +49,7 @@ struct ArchiveScreen: View {
                                 .font(.subheadline.weight(.semibold))
                                 .padding(.horizontal, 12).padding(.vertical, 10)
                                 .foregroundStyle(section == item ? .white : .primary)
-                                .background(section == item ? ArchiveStyle.accent : ArchiveStyle.card, in: Capsule())
+                                .background(section == item ? ArchiveStyle.solidAccent : ArchiveStyle.card, in: Capsule())
                         }
                         .buttonStyle(.plain)
                         .accessibilityAddTraits(section == item ? .isSelected : [])

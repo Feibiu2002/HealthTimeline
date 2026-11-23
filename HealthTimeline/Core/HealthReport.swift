@@ -345,12 +345,37 @@ enum SleepStage: String, CaseIterable, Sendable {
 }
 
 struct SleepNight: Sendable {
-    let startHour: Double
-    let endHour: Double
+    // Seconds since midnight of the report date, from noon through the next noon.
+    static let timeline = 43_200..<129_600
+
+    let intervals: [Range<Int>]
     let stages: [SleepStage: Int]
 
     var sleepSeconds: Int {
         stages.reduce(0) { $0 + ($1.key.asleep ? $1.value : 0) }
+    }
+
+    var primaryStartHour: Double? {
+        guard let first = intervals.first else { return nil }
+        var bestStart = first.lowerBound
+        var bestDuration = first.count
+        var sessionStart = first.lowerBound
+        var sessionDuration = first.count
+        var previousEnd = first.upperBound
+        for interval in intervals.dropFirst() {
+            // Keep brief awakenings within a session while separating naps from it.
+            if interval.lowerBound - previousEnd > 3_600 {
+                sessionStart = interval.lowerBound
+                sessionDuration = 0
+            }
+            sessionDuration += interval.count
+            previousEnd = interval.upperBound
+            if sessionDuration > bestDuration {
+                bestStart = sessionStart
+                bestDuration = sessionDuration
+            }
+        }
+        return Double(bestStart) / 3_600
     }
 }
 

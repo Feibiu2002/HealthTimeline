@@ -2,7 +2,12 @@ import Charts
 import SwiftUI
 
 enum ArchiveStyle {
-    static let accent = Color(red: 0.05, green: 0.38, blue: 0.46)
+    static let solidAccent = Color(red: 0.05, green: 0.38, blue: 0.46)
+    static let accent = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.31, green: 0.76, blue: 0.83, alpha: 1)
+            : UIColor(red: 0.05, green: 0.38, blue: 0.46, alpha: 1)
+    })
     static let mint = Color(red: 0.48, green: 0.91, blue: 0.78)
     static let background = Color(uiColor: .systemGroupedBackground)
     static let card = Color(uiColor: .secondarySystemGroupedBackground)
@@ -32,6 +37,17 @@ enum ArchiveFormat {
         var style = Date.FormatStyle().year().month(.abbreviated).day()
         style.timeZone = HealthDay.calendar.timeZone
         return day.date.formatted(style)
+    }
+
+    static func shortDate(_ day: HealthDay) -> String {
+        let calendar = HealthDay.calendar
+        return "\(calendar.component(.month, from: day.date))/\(calendar.component(.day, from: day.date))"
+    }
+
+    static func month(_ day: HealthDay, includeYear: Bool = false) -> String {
+        let calendar = HealthDay.calendar
+        let month = calendar.component(.month, from: day.date)
+        return includeYear ? "\(calendar.component(.year, from: day.date))年\(month)月" : "\(month)月"
     }
 
     static func hour(_ hour: Double) -> String {
@@ -90,7 +106,7 @@ struct StatGrid: View {
     }
 }
 
-struct ReportPoint: Identifiable {
+struct ReportPoint: Identifiable, Equatable {
     let day: HealthDay
     let value: Double
     var id: HealthDay { day }
@@ -113,64 +129,138 @@ final class ReportSelection<Value>: ObservableObject {
     @Published var value: Value?
 }
 
+private struct TrendInterval: Identifiable {
+    let start: HealthDay
+    let end: HealthDay
+    let value: Double
+
+    var id: HealthDay { start }
+    var duration: TimeInterval { end.date.timeIntervalSince(start.date) }
+    var center: Date { start.date.addingTimeInterval(duration / 2) }
+}
+
 struct TrendCard: View {
     let title: String
     let points: [ReportPoint]
     let unit: String
     var totals = false
     var bars = false
+    var period: Calendar.Component = .day
+    var showsClockTime = false
     @StateObject private var selection = ReportSelection<Date>()
-    private var selected: Date? { selection.value }
 
     var body: some View {
-        let series = compactSeries
-        ReportCard(title, caption: bucketDays > 1 ? "每 \(bucketDays) 天\(totals ? "汇总" : "平均")" : nil) {
-            if let closest = selected.flatMap({ value in
-                series.min { abs($0.day.date.timeIntervalSince(value)) < abs($1.day.date.timeIntervalSince(value)) }
-            }) {
-                Text("\(ArchiveFormat.date(closest.day)) · \(ArchiveFormat.measurement(closest.value, unit: unit, digits: 2))")
-                    .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-            } else {
-                Text(unit).font(.caption).foregroundStyle(.secondary)
+        let days = bucketDays
+        let series = intervals(bucketDays: days)
+        if let first = series.first, let last = series.last {
+            let selected = selection.value.flatMap { value in
+                series.min { abs($0.center.timeIntervalSince(value)) < abs($1.center.timeIntervalSince(value)) }
             }
-            Chart {
-                ForEach(series) { point in
-                    if bars {
-                        BarMark(x: .value("日期", point.day.date, unit: .day), y: .value(title, point.value))
-                            .foregroundStyle(ArchiveStyle.accent.gradient)
-                    } else if series.count == 1 {
-                        PointMark(x: .value("日期", point.day.date), y: .value(title, point.value))
-                            .foregroundStyle(ArchiveStyle.accent)
-                    } else {
-                        LineMark(x: .value("日期", point.day.date), y: .value(title, point.value))
-                            .foregroundStyle(ArchiveStyle.accent)
+            ReportCard(title, caption: days > 1 ? "每 \(days) 天\(totals ? "汇总" : "平均")" : nil) {
+                Text(selected.map { detail($0, bucketDays: days) } ?? unit)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                Chart {
+                    ForEach(series) { point in
+                        if bars {
+                            let inset = point.duration * 0.12
+                            RectangleMark(xStart: .value("开始", point.start.date.addingTimeInterval(inset)),
+                                          xEnd: .value("结束", point.end.date.addingTimeInterval(-inset)),
+                                          yStart: .value(title, min(0, point.value)),
+                                          yEnd: .value(title, max(0, point.value)))
+                                .foregroundStyle(ArchiveStyle.accent)
+                                .accessibilityLabel(periodLabel(point, bucketDays: days))
+                                .accessibilityValue(valueLabel(point.value))
+                        } else if series.count == 1 {
+                            PointMark(x: .value("日期", point.center), y: .value(title, point.value))
+                                .foregroundStyle(ArchiveStyle.accent)
+                        } else {
+                            LineMark(x: .value("日期", point.center), y: .value(title, point.value))
+                                .foregroundStyle(ArchiveStyle.accent)
+                        }
+                    }
+                    if let selected {
+                        RuleMark(x: .value("选中日期", selected.center))
+                            .foregroundStyle(.secondary.opacity(0.7))
+                            .accessibilityHidden(true)
                     }
                 }
-                if let selected {
-                    RuleMark(x: .value("选中日期", selected))
-                        .foregroundStyle(.secondary.opacity(0.42))
+                .chartXScale(domain: first.start.date...last.end.date)
+                .chartYScale(domain: .automatic(includesZero: bars))
+                .chartGesture { proxy in
+                    SpatialTapGesture().onEnded { tap in
+                        selection.value = proxy.value(atX: tap.location.x, as: Date.self)
+                    }
                 }
-            }
-            .chartXSelection(value: $selection.value)
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) {
-                    AxisGridLine()
-                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                .chartXAxis {
+                    AxisMarks(preset: .aligned, values: axisDates(series)) { value in
+                        AxisGridLine()
+                        if let date = value.as(Date.self) {
+                            let day = HealthDay(date: date)
+                            AxisValueLabel(centered: false, anchor: horizontalLabelAnchor(value), offsetsMarks: false) {
+                                Text(period == .month ? ArchiveFormat.month(day) : ArchiveFormat.shortDate(day))
+                                    .font(.caption2.monospacedDigit())
+                            }
+                        }
+                    }
                 }
+                .chartYAxis {
+                    if showsClockTime {
+                        AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                            AxisGridLine()
+                            if let hour = value.as(Double.self) { AxisValueLabel { Text(ArchiveFormat.hour(hour)) } }
+                        }
+                    } else {
+                        AxisMarks(values: .automatic(desiredCount: 4))
+                    }
+                }
+                .frame(height: 178)
+                .accessibilityLabel(title)
             }
-            .frame(height: 178)
-            .accessibilityLabel(title)
+            .onChange(of: points) { selection.value = nil }
         }
     }
 
-    private var compactSeries: [ReportPoint] {
-        guard bucketDays > 1 else { return points }
-        let first = points.first?.day.ordinal ?? 0
-        let buckets = Dictionary(grouping: points) { ($0.day.ordinal - first) / bucketDays }
+    private func valueLabel(_ value: Double) -> String {
+        showsClockTime ? ArchiveFormat.hour(value) : ArchiveFormat.measurement(value, unit: unit, digits: 2)
+    }
+
+    private func periodLabel(_ point: TrendInterval, bucketDays: Int) -> String {
+        if bucketDays > 1, point.end > point.start.adding(1) {
+            return "\(ArchiveFormat.date(point.start)) – \(ArchiveFormat.date(point.end.adding(-1)))"
+        }
+        return period == .month ? ArchiveFormat.month(point.start, includeYear: true) : ArchiveFormat.date(point.start)
+    }
+
+    private func detail(_ point: TrendInterval, bucketDays: Int) -> String {
+        "\(periodLabel(point, bucketDays: bucketDays)) · \(valueLabel(point.value))"
+    }
+
+    private func axisDates(_ series: [TrendInterval]) -> [Date] {
+        guard series.count > 4, let first = series.first, let last = series.last else { return series.map(\.center) }
+        if period == .month { return (0...3).map { series[(series.count - 1) * $0 / 3].center } }
+        let span = last.start.ordinal - first.start.ordinal
+        return (0...3).map { index in
+            first.start.adding(span * index / 3).date.addingTimeInterval(43_200)
+        }
+    }
+
+    private func intervals(bucketDays: Int) -> [TrendInterval] {
+        if bucketDays == 1 {
+            return points.map { point in
+                let end = period == .month ? HealthDay.calendar.dateInterval(of: .month, for: point.day.date)
+                    .map { HealthDay(date: $0.end) } : nil
+                return TrendInterval(start: point.day, end: end ?? point.day.adding(1), value: point.value)
+            }
+        }
+        guard let first = points.first?.day, let last = points.last?.day else { return [] }
+        let buckets = Dictionary(grouping: points) { ($0.day.ordinal - first.ordinal) / bucketDays }
         return buckets.keys.sorted().compactMap { key in
-            guard let points = buckets[key], let first = points.first else { return nil }
+            guard let points = buckets[key] else { return nil }
+            let start = first.adding(key * bucketDays)
             let sum = points.reduce(0) { $0 + $1.value }
-            return ReportPoint(day: first.day, value: totals ? sum : sum / Double(points.count))
+            return TrendInterval(start: start, end: min(start.adding(bucketDays), last.adding(1)),
+                                 value: totals ? sum : sum / Double(points.count))
         }
     }
 
@@ -188,20 +278,37 @@ struct HourCard: View {
     var body: some View {
         ReportCard(title, caption: unit) {
             Chart(points) { point in
-                BarMark(x: .value("时段", Double(point.hour) + 0.5), y: .value(title, point.value), width: .ratio(0.85))
-                    .foregroundStyle(ArchiveStyle.accent.gradient)
+                let hour = Double(point.hour)
+                RectangleMark(xStart: .value("时段", hour + 0.08), xEnd: .value("时段", hour + 0.92),
+                              yStart: .value(title, min(0, point.value)), yEnd: .value(title, max(0, point.value)))
+                    .foregroundStyle(ArchiveStyle.accent)
+                    .accessibilityLabel("\(ArchiveFormat.hour(hour)) 时段")
+                    .accessibilityValue(ArchiveFormat.measurement(point.value, unit: unit))
             }
             .chartXScale(domain: 0.0...24.0)
             .chartXAxis {
-                AxisMarks(values: [0, 6, 12, 18, 24].map(Double.init)) { value in
+                AxisMarks(preset: .aligned, values: [0, 6, 12, 18, 24].map(Double.init)) { value in
                     AxisGridLine()
-                    if let hour = value.as(Double.self) { AxisValueLabel { Text("\(Int(hour)):00") } }
+                    if let hour = value.as(Double.self) {
+                        AxisValueLabel(centered: false, anchor: horizontalLabelAnchor(value), offsetsMarks: false) {
+                            Text(hour == 24 ? "24:00" : ArchiveFormat.hour(hour)).font(.caption2.monospacedDigit())
+                        }
+                    }
                 }
             }
+            .chartYAxis { AxisMarks(values: .automatic(desiredCount: 4)) }
             .frame(height: 145)
             .accessibilityLabel(title)
         }
     }
+}
+
+private func horizontalLabelAnchor(_ value: AxisValue) -> UnitPoint {
+    if value.count > 1 {
+        if value.index == 0 { return .topLeading }
+        if value.index == value.count - 1 { return .topTrailing }
+    }
+    return .top
 }
 
 struct RankCard: View {
@@ -211,15 +318,44 @@ struct RankCard: View {
     var caption: String?
 
     var body: some View {
+        let displayed = values.prefix(10)
+        let maximum = displayed.map(\.value).max() ?? 0
         ReportCard(title, caption: caption) {
-            Chart(Array(values.prefix(10))) { point in
-                BarMark(x: .value(unit, point.value), y: .value("项目", point.name))
-                    .foregroundStyle(ArchiveStyle.accent.gradient)
+            ForEach(displayed) { point in
+                VStack(alignment: .leading, spacing: 6) {
+                    ReportValueRow(name: point.name, value: ArchiveFormat.measurement(point.value, unit: unit))
+                    GeometryReader { geometry in
+                        let fraction = maximum > 0 ? point.value / maximum : 0
+                        Capsule().fill(ArchiveStyle.accent)
+                            .frame(width: geometry.size.width * fraction)
+                    }
+                    .frame(height: 6)
+                    .background(ArchiveStyle.accent.opacity(0.12), in: Capsule())
+                    .accessibilityHidden(true)
+                }
             }
-            .chartXAxisLabel(unit)
-            .frame(height: CGFloat(max(110, min(10, values.count) * 30 + 38)))
-            .accessibilityLabel(title)
         }
+    }
+}
+
+struct ReportValueRow: View {
+    let name: String
+    let value: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(name).fixedSize()
+                Spacer(minLength: 0)
+                Text(value).monospacedDigit().foregroundStyle(.secondary).fixedSize()
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(name).fixedSize(horizontal: false, vertical: true)
+                Text(value).monospacedDigit().foregroundStyle(.secondary)
+            }
+        }
+        .font(.subheadline)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -258,7 +394,16 @@ struct HealthCalendar: View {
     @StateObject private var yearSelection = ReportSelection<Int>()
 
     var body: some View {
-        if let year = activeYear {
+        let calendar = HealthDay.calendar
+        if let year = activeYear,
+           let first = calendar.date(from: DateComponents(year: year, month: 1, day: 1)),
+           let last = calendar.date(from: DateComponents(year: year, month: 12, day: 31)) {
+            let yearStart = HealthDay(date: first)
+            let lastWeek = cell(HealthDay(date: last), yearStart: yearStart).week
+            let quarters = [1, 4, 7, 10].compactMap { month -> Double? in
+                guard let date = calendar.date(from: DateComponents(year: year, month: month, day: 1)) else { return nil }
+                return cell(HealthDay(date: date), yearStart: yearStart).week
+            }
             let visible = points.filter { HealthDay.calendar.component(.year, from: $0.day.date) == year }
             let intensity = visible.map(\.value).max() ?? 0
             ReportCard(title) {
@@ -274,19 +419,19 @@ struct HealthCalendar: View {
                     }
                 }
                 Chart(visible) { point in
-                    let slot = cell(point.day, year: year)
+                    let slot = cell(point.day, yearStart: yearStart)
                     let shade = intensity > 0 ? min(1, max(0, point.value / intensity)) : 0
-                    RectangleMark(x: .value("周", slot.week), y: .value("星期", slot.weekday),
-                                  width: .ratio(0.83), height: .ratio(0.83))
+                    RectangleMark(xStart: .value("周", slot.week - 0.41), xEnd: .value("周", slot.week + 0.41),
+                                  yStart: .value("星期", slot.weekday - 0.41), yEnd: .value("星期", slot.weekday + 0.41))
                         .foregroundStyle(ArchiveStyle.accent.opacity(0.15 + shade * 0.85))
                         .accessibilityLabel(ArchiveFormat.date(point.day))
                         .accessibilityValue(ArchiveFormat.measurement(point.value, unit: unit))
                 }
-                .chartXScale(domain: -0.5...53.5)
+                .chartXScale(domain: -0.5...(lastWeek + 0.5))
                 .chartYScale(domain: -0.5...6.5)
                 .chartXAxis {
-                    AxisMarks(values: [0.0, 13.0, 26.0, 39.0]) { value in
-                        if let week = value.as(Double.self) { AxisValueLabel { Text("\(Int(week) / 13 * 3 + 1) 月") } }
+                    AxisMarks(values: quarters) { value in
+                        AxisValueLabel(centered: false, anchor: .leading) { Text("\(value.index * 3 + 1) 月") }
                     }
                 }
                 .chartYAxis(.hidden)
@@ -304,12 +449,11 @@ struct HealthCalendar: View {
         return years.last
     }
 
-    private func cell(_ day: HealthDay, year: Int) -> (week: Double, weekday: Double) {
+    private func cell(_ day: HealthDay, yearStart: HealthDay) -> (week: Double, weekday: Double) {
         let calendar = HealthDay.calendar
-        let first = calendar.date(from: DateComponents(year: year, month: 1, day: 1)) ?? day.date
-        let offset = (calendar.component(.weekday, from: first) + 5) % 7
+        let offset = (calendar.component(.weekday, from: yearStart.date) + 5) % 7
         let weekday = (calendar.component(.weekday, from: day.date) + 5) % 7
-        return (Double((day.ordinal - HealthDay(date: first).ordinal + offset) / 7), Double(6 - weekday))
+        return (Double((day.ordinal - yearStart.ordinal + offset) / 7), Double(6 - weekday))
     }
 }
 
