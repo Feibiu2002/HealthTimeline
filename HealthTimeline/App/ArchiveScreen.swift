@@ -24,6 +24,8 @@ struct ArchiveScreen: View {
     let report: HealthReport
     let importAnother: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Binding var appearance: ArchiveAppearance
     @StateObject private var navigation: ArchiveNavigation
 
@@ -40,7 +42,34 @@ struct ArchiveScreen: View {
     }
 
     var body: some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize || verticalSizeClass == .compact {
+                reportScrollView(inlineHeader: true)
+            } else {
+                reportScrollView(inlineHeader: false)
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        glassHeader
+                            .background {
+                                LinearGradient(stops: [
+                                    .init(color: ArchiveStyle.wash, location: 0),
+                                    .init(color: ArchiveStyle.wash, location: 0.60),
+                                    .init(color: ArchiveStyle.wash.opacity(0), location: 1)
+                                ], startPoint: .top, endPoint: .bottom)
+                                .ignoresSafeArea(edges: .top)
+                            }
+                    }
+            }
+        }
+        .sheet(isPresented: $navigation.customDates) {
+            RangeSheet(available: report.dates ?? dates, current: dates) { chosen in
+                select(chosen, title: "自定义")
+            }
+        }
+    }
+
+    private func reportScrollView(inlineHeader: Bool) -> some View {
         ScrollView {
+            if inlineHeader { glassHeader }
             VStack(alignment: .leading, spacing: 14) {
                 SectionReports(section: section, report: report, slice: slice)
             }
@@ -51,22 +80,6 @@ struct ArchiveScreen: View {
             .frame(maxWidth: .infinity)
         }
         .id(section)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            glassHeader
-                .background {
-                    LinearGradient(stops: [
-                        .init(color: ArchiveStyle.wash, location: 0),
-                        .init(color: ArchiveStyle.wash, location: 0.60),
-                        .init(color: ArchiveStyle.wash.opacity(0), location: 1)
-                    ], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea(edges: .top)
-                }
-        }
-        .sheet(isPresented: $navigation.customDates) {
-            RangeSheet(available: report.dates ?? dates, current: dates) { chosen in
-                select(chosen, title: "自定义")
-            }
-        }
     }
 
     @ViewBuilder
@@ -139,29 +152,47 @@ struct ArchiveScreen: View {
     }
 
     private var sectionPicker: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                ForEach(ArchiveSection.allCases) { item in
-                    let selected = section == item
-                    Button {
-                        navigation.section = item
-                    } label: {
-                        Label(item.rawValue, systemImage: item.symbol)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(selected ? ArchiveStyle.accent : Color.primary)
-                            .padding(.horizontal, 13)
-                            .frame(minHeight: 44)
-                            .contentShape(Capsule())
-                            .archiveGlass(in: Capsule(), tint: selected ? ArchiveStyle.glassTint : nil)
+        ViewThatFits(in: .horizontal) {
+            sectionGrid(columns: 4)
+            sectionGrid(columns: 2)
+            sectionGrid(columns: 1)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 4)
+    }
+
+    private func sectionGrid(columns: Int) -> some View {
+        let sections = ArchiveSection.allCases
+        let rowStarts = Array(stride(from: 0, to: sections.count, by: columns))
+
+        return Grid(horizontalSpacing: 8, verticalSpacing: 8) {
+            ForEach(rowStarts, id: \.self) { start in
+                GridRow {
+                    ForEach(sections[start..<min(start + columns, sections.count)]) { item in
+                        sectionButton(item)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(selected ? .isSelected : [])
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 4)
         }
-        .scrollIndicators(.never, axes: .horizontal)
+    }
+
+    private func sectionButton(_ item: ArchiveSection) -> some View {
+        let selected = section == item
+        return Button {
+            navigation.section = item
+        } label: {
+            Label(item.rawValue, systemImage: item.symbol)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(selected ? ArchiveStyle.accent : Color.primary)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .frame(minWidth: 44, maxWidth: .infinity, minHeight: 44)
+                .contentShape(Capsule())
+                .archiveGlass(in: Capsule(), tint: selected ? ArchiveStyle.glassTint : nil)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private var datesCaption: String {
