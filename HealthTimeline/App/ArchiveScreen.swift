@@ -24,52 +24,43 @@ struct ArchiveScreen: View {
     let report: HealthReport
     let importAnother: () -> Void
 
+    @Binding var appearance: ArchiveAppearance
     @StateObject private var navigation: ArchiveNavigation
 
     private var section: ArchiveSection { navigation.section }
     private var dates: ClosedRange<HealthDay> { navigation.scope.dates }
     private var slice: HealthSlice { navigation.scope.slice }
+    private let contentWidth: CGFloat = 680
 
-    init(report: HealthReport, importAnother: @escaping () -> Void) {
+    init(report: HealthReport, appearance: Binding<ArchiveAppearance>, importAnother: @escaping () -> Void) {
         self.report = report
         self.importAnother = importAnother
+        _appearance = appearance
         _navigation = StateObject(wrappedValue: ArchiveNavigation(report: report))
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            ScrollView(.horizontal) {
-                HStack(spacing: 8) {
-                    ForEach(ArchiveSection.allCases) { item in
-                        Button {
-                            navigation.section = item
-                        } label: {
-                            Label(item.rawValue, systemImage: item.symbol)
-                                .font(.subheadline.weight(.semibold))
-                                .padding(.horizontal, 12).padding(.vertical, 10)
-                                .foregroundStyle(section == item ? .white : .primary)
-                                .background(section == item ? ArchiveStyle.solidAccent : ArchiveStyle.card, in: Capsule())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityAddTraits(section == item ? .isSelected : [])
-                    }
-                }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 8)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionReports(section: section, report: report, slice: slice)
             }
-            .scrollIndicators(.hidden)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    SectionReports(section: section, report: report, slice: slice, navigate: { navigation.section = $0 })
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+            .padding(.bottom, 20)
+            .frame(maxWidth: contentWidth)
+            .frame(maxWidth: .infinity)
+        }
+        .id(section)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            glassHeader
+                .background {
+                    LinearGradient(stops: [
+                        .init(color: ArchiveStyle.wash, location: 0),
+                        .init(color: ArchiveStyle.wash, location: 0.60),
+                        .init(color: ArchiveStyle.wash.opacity(0), location: 1)
+                    ], startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea(edges: .top)
                 }
-                .frame(maxWidth: 800)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity)
-            }
-            .id(section)
         }
         .sheet(isPresented: $navigation.customDates) {
             RangeSheet(available: report.dates ?? dates, current: dates) { chosen in
@@ -78,35 +69,99 @@ struct ArchiveScreen: View {
         }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("健康年表").font(.system(.largeTitle, design: .serif, weight: .semibold))
-                Spacer()
-                Button(action: importAnother) { Image(systemName: "square.and.arrow.down") }
-                    .accessibilityLabel("导入另一份健康记录")
-                    .buttonStyle(.bordered)
-            }
-            HStack {
-                Text(datesCaption)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                Spacer(minLength: 5)
-                Menu {
-                    Button("全部记录") { select(report.dates ?? dates, title: "全部") }
-                    Button("最近 7 天") { recent(days: 7, title: "近 7 天") }
-                    Button("最近 30 天") { recent(days: 30, title: "近 30 天") }
-                    Button("最近一年") { recent(days: 365, title: "近一年") }
-                    Button("自定义日期…") { navigation.customDates = true }
-                } label: {
-                    Label(navigation.scope.title, systemImage: "calendar").font(.subheadline.weight(.semibold))
-                }
-                .accessibilityLabel("报告日期，\(navigation.scope.title)")
-            }
+    @ViewBuilder
+    private var glassHeader: some View {
+        if #available(iOS 26.0, *) {
+            GlassEffectContainer(spacing: 6) { header }
+        } else {
+            header
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 8)
+    }
+
+    private var header: some View {
+        VStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Text("健康年表")
+                        .font(.largeTitle.weight(.bold))
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer(minLength: 4)
+                    AppearanceMenu(selection: $appearance)
+                    Button(action: importAnother) {
+                        ArchiveActionIcon(symbol: "square.and.arrow.down", highlighted: true)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("导入另一份健康记录")
+                }
+                HStack(spacing: 10) {
+                    Text(datesCaption)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                    dateFilter
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            .padding(.horizontal, 20)
+            sectionPicker
+        }
+        .padding(.top, 6)
+        .padding(.bottom, 6)
+        .frame(maxWidth: contentWidth)
+        .frame(maxWidth: .infinity)
+    }
+
+    private var dateFilter: some View {
+        Menu {
+            Button("全部记录") { select(report.dates ?? dates, title: "全部") }
+            Button("最近 7 天") { recent(days: 7, title: "近 7 天") }
+            Button("最近 30 天") { recent(days: 30, title: "近 30 天") }
+            Button("最近一年") { recent(days: 365, title: "近一年") }
+            Button("自定义日期…") { navigation.customDates = true }
+        } label: {
+            HStack(spacing: 6) {
+                Label(navigation.scope.title, systemImage: "calendar")
+                Image(systemName: "chevron.down").font(.caption2.weight(.bold))
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 44)
+            .contentShape(Capsule())
+            .archiveGlass(in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .accessibilityLabel("报告日期")
+        .accessibilityValue(navigation.scope.title)
+    }
+
+    private var sectionPicker: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                ForEach(ArchiveSection.allCases) { item in
+                    let selected = section == item
+                    Button {
+                        navigation.section = item
+                    } label: {
+                        Label(item.rawValue, systemImage: item.symbol)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(selected ? ArchiveStyle.accent : Color.primary)
+                            .padding(.horizontal, 13)
+                            .frame(minHeight: 44)
+                            .contentShape(Capsule())
+                            .archiveGlass(in: Capsule(), tint: selected ? ArchiveStyle.glassTint : nil)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 4)
+        }
+        .scrollIndicators(.never, axes: .horizontal)
     }
 
     private var datesCaption: String {

@@ -5,11 +5,10 @@ struct SectionReports: View {
     let section: ArchiveSection
     let report: HealthReport
     let slice: HealthSlice
-    let navigate: (ArchiveSection) -> Void
 
     var body: some View {
         switch section {
-        case .overview: OverviewReport(slice: slice, navigate: navigate)
+        case .overview: OverviewReport(slice: slice)
         case .hearing: HearingReport(slice: slice)
         case .heart: HeartReport(slice: slice)
         case .sleep: SleepReport(slice: slice)
@@ -23,51 +22,33 @@ struct SectionReports: View {
 
 private struct OverviewReport: View {
     let slice: HealthSlice
-    let navigate: (ArchiveSection) -> Void
 
     private var nights: [SleepNight] { slice.days.compactMap(\.data.sleep).filter { $0.sleepSeconds > 0 } }
 
     var body: some View {
-        Button {
-            navigate(.hearing)
-        } label: {
-            VStack(alignment: .leading, spacing: 10) {
-                Label("耳机聆听时长", systemImage: "headphones")
-                    .font(.subheadline.weight(.semibold)).foregroundStyle(ArchiveStyle.mint)
-                Text(slice.listening.total.seconds > 0 ? ArchiveFormat.span(Double(slice.listening.total.seconds)) : "当前范围没有耳机记录")
-                    .font(.system(.largeTitle, design: .serif, weight: .semibold))
-                Label("查看耳机明细", systemImage: "arrow.right").font(.footnote)
-                    .foregroundStyle(.white.opacity(0.82))
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(22)
-            .foregroundStyle(.white)
-            .background(ArchiveStyle.hero, in: RoundedRectangle(cornerRadius: 24))
-        }
-        .buttonStyle(.plain)
-
         StatGrid(stats: [
-            HeadlineStat(title: "有记录的日期", value: "\(slice.days.count.formatted()) 天"),
-            metricStat(slice, .steps),
-            metricStat(slice, .heartRate, label: "平均心率"),
-            HeadlineStat(title: "平均每日睡眠", value: averageSleep),
-            metricStat(slice, .activeEnergy),
-            metricStat(slice, .walkingDistance)
+            HeadlineStat(title: "有记录的日期", value: "\(slice.days.count.formatted()) 天", symbol: "calendar"),
+            metricStat(slice, .steps, symbol: "shoeprints.fill", tint: ArchiveStyle.activity),
+            metricStat(slice, .heartRate, label: "平均心率", symbol: "heart.fill", tint: ArchiveStyle.heart),
+            HeadlineStat(title: "平均每日睡眠", value: averageSleep, symbol: "moon.stars", tint: ArchiveStyle.sleep),
+            metricStat(slice, .activeEnergy, symbol: "flame.fill", tint: ArchiveStyle.energy),
+            metricStat(slice, .walkingDistance, symbol: "figure.walk", tint: ArchiveStyle.activity)
         ])
 
-        if !slice.hours(.heartRate).isEmpty {
-            HourCard(title: "一天中的平均心率", points: slice.hours(.heartRate), unit: "bpm")
+        let heartHours = slice.hours(.heartRate)
+        if !heartHours.isEmpty {
+            HourCard(title: "一天中的平均心率", points: heartHours, unit: "bpm", tint: ArchiveStyle.heart)
         }
         let activeHours = slice.hours(.activeEnergy)
         if !activeHours.isEmpty {
-            HourCard(title: "一天中的活动能量", points: activeHours, unit: "kcal")
+            HourCard(title: "一天中的活动能量", points: activeHours, unit: "kcal", tint: ArchiveStyle.energy)
         }
         let dailySleep = slice.days.compactMap { entry -> ReportPoint? in
             guard let hours = entry.data.sleep?.sleepSeconds, hours > 0 else { return nil }
             return ReportPoint(day: entry.day, value: Double(hours) / 3_600)
         }
         if !dailySleep.isEmpty {
-            TrendCard(title: "每日睡眠趋势", points: dailySleep, unit: "小时")
+            TrendCard(title: "每日睡眠趋势", points: dailySleep, unit: "小时", tint: ArchiveStyle.sleep)
         }
         MetricTrends(slice: slice, metrics: [.weight, .height, .water, .caffeine, .mindfulness, .sexualActivity])
         if slice.days.isEmpty {
@@ -172,7 +153,7 @@ private struct HearingReport: View {
             }
             .font(.subheadline.weight(.semibold))
             .padding(14)
-            .background(ArchiveStyle.card, in: RoundedRectangle(cornerRadius: 14))
+            .archivePanel(cornerRadius: 18)
         }
     }
 }
@@ -638,8 +619,10 @@ private struct PeakCard: View {
     }
 }
 
-private func metricStat(_ slice: HealthSlice, _ metric: HealthMetric, label: String? = nil) -> HeadlineStat {
-    HeadlineStat(title: label ?? metric.title, value: ArchiveFormat.measurement(slice.value(metric), unit: metric.unit))
+private func metricStat(_ slice: HealthSlice, _ metric: HealthMetric, label: String? = nil,
+                        symbol: String? = nil, tint: Color = ArchiveStyle.accent) -> HeadlineStat {
+    HeadlineStat(title: label ?? metric.title, value: ArchiveFormat.measurement(slice.value(metric), unit: metric.unit),
+                 symbol: symbol, tint: tint)
 }
 
 private func peak(_ points: [ReportPoint], label: String, unit: String) -> HeadlineStat? {

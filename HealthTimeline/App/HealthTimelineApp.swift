@@ -68,19 +68,20 @@ private final class ReportImportModel: ObservableObject {
 }
 
 private struct HealthTimelineRoot: View {
+    @AppStorage("archiveAppearance") private var appearance = ArchiveAppearance.system
     @StateObject private var importer = ReportImportModel()
 
     var body: some View {
         NavigationStack {
             Group {
                 if let report = importer.report {
-                    ArchiveScreen(report: report) { importer.selectFile = true }
+                    ArchiveScreen(report: report, appearance: $appearance) { importer.selectFile = true }
                         .id(importer.reportID)
                 } else {
-                    ImportLanding { importer.selectFile = true }
+                    ImportLanding(appearance: $appearance) { importer.selectFile = true }
                 }
             }
-            .background(ArchiveStyle.background.ignoresSafeArea())
+            .background { ArchiveBackdrop() }
             .toolbar(.hidden, for: .navigationBar)
         }
         .fileImporter(isPresented: $importer.selectFile, allowedContentTypes: [.zip, .xml]) { result in
@@ -102,52 +103,76 @@ private struct HealthTimelineRoot: View {
         } message: {
             Text(importer.message ?? "")
         }
+        .preferredColorScheme(appearance.colorScheme)
     }
 }
 
 private struct ImportLanding: View {
+    @Binding var appearance: ArchiveAppearance
     let select: () -> Void
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                VStack(alignment: .leading, spacing: 13) {
-                    Image(systemName: "waveform.path")
-                        .font(.system(size: 38, weight: .medium))
-                        .foregroundStyle(ArchiveStyle.mint)
-                        .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 20) {
+                HStack {
                     Text("健康年表")
-                        .font(.system(size: 42, weight: .semibold, design: .serif))
-                    Text("看看你的 AirPods 听了多久，也翻一翻心率、睡眠和活动的记录。")
-                        .font(.body)
-                        .foregroundStyle(.white.opacity(0.82))
-                        .fixedSize(horizontal: false, vertical: true)
+                        .font(.largeTitle.weight(.bold))
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer()
+                    AppearanceMenu(selection: $appearance)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(26)
-                .foregroundStyle(.white)
-                .background(ArchiveStyle.hero, in: RoundedRectangle(cornerRadius: 30))
-
-                VStack(alignment: .leading, spacing: 14) {
-                    Button(action: select) {
-                        Label("选择健康导出文件", systemImage: "folder")
-                            .font(.headline)
-                            .padding(.vertical, 8)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(ArchiveStyle.solidAccent)
-                    .controlSize(.large)
-                    Text("打开「健康」的个人资料，点「导出所有健康数据」，并将 ZIP 存到「文件」。")
-                        .foregroundStyle(.secondary)
-                    Label("在这台 iPhone 上生成报告", systemImage: "iphone")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                importCard
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("在 Apple「健康」的个人资料里选择「导出所有健康数据」，再把 ZIP 存到「文件」。",
+                          systemImage: "square.and.arrow.up")
+                    Label("健康数据在这台 iPhone 上处理", systemImage: "lock.shield")
                 }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+                .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(20)
-            .padding(.top, 30)
+            .padding(.horizontal, 20)
+            .padding(.top, 6)
+            .padding(.bottom, 24)
+            .frame(maxWidth: 560)
+            .frame(maxWidth: .infinity)
         }
+    }
+
+    private var importCard: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Image(systemName: "waveform.path.ecg")
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(ArchiveStyle.accent)
+                .frame(width: 58, height: 58)
+                .background(ArchiveStyle.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 18))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("导入健康记录")
+                    .font(.title2.weight(.bold))
+                    .accessibilityAddTraits(.isHeader)
+                Text("查看心率、睡眠和活动随时间的变化。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Button(action: select) {
+                Label("选择健康导出文件", systemImage: "folder")
+                    .font(.headline)
+                    .foregroundStyle(ArchiveStyle.accent)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .contentShape(Capsule())
+                    .archiveGlass(in: Capsule(), tint: ArchiveStyle.glassTint)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(22)
+        .archivePanel(cornerRadius: 30)
     }
 }
 

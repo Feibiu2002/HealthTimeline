@@ -4,10 +4,18 @@
 
 ## 在 iPhone 上使用
 
-1. 在 Mac 上打开 HealthTimeline.xcodeproj。
+1. 在 Mac 上用 Xcode 27 打开 HealthTimeline.xcodeproj。
 2. 在 HealthTimeline 目标的 Signing & Capabilities 里选自己的 Team。选择已连接并信任的 iPhone，点 Run。
 3. 在 iPhone 的「健康」里点个人资料，再点「导出所有健康数据」。将 ZIP 存到「文件」。
 4. 打开「健康年表」，选择健康导出文件。点「耳朵」，再选择自己的 AirPods，可查看时长、日趋势和分时段音量。
+
+点右上角的外观按钮可在「跟随系统」「浅色」「深色」之间切换。App 会记住上次的选择。iOS 26 及更新版本使用原生 Liquid Glass 控件，iOS 17 至 25 上使用系统材质。
+
+## 版本管理
+
+`main` 是日常开发分支。`v1.0` 标记初版源码，`chartfix-baseline` 标记 ChartFix 源码，`v1.1.0` 标记液态玻璃版。
+
+发布时在 Xcode 的 HealthTimeline 目标中更新 Version 和 Build，逐次增加 Build 编号。把改动记入[更新记录](CHANGELOG.md)，提交后用 `v<版本号>` 标签标记发布提交。
 
 ## 报告和统计方式
 

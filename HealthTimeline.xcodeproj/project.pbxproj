@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		06AAD57020E855423AFBF096 /* HealthReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC426C6D7FA57DEB274CE8D0 /* HealthReport.swift */; };
 		23A96E8D2AEBDEB038A7458A /* SectionReports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80843B0DFB04363B3BF607DC /* SectionReports.swift */; };
+		27C3F6A1AF393B786D418304 /* ArchiveAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94500F702AE859FC978E456 /* ArchiveAppearance.swift */; };
 		2D9BBCDE30B52FF23EC18313 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 183134C0A6AFCAF4CAA9DA8B /* Assets.xcassets */; };
 		48DD9D63EA7D4662C7BBA3B4 /* HealthImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086D1DEB9AC1F7846CC884 /* HealthImport.swift */; };
 		74492380FC6FFE1B388496AD /* HealthTimelineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B917CE7C76735D2E193772 /* HealthTimelineApp.swift */; };
@@ -26,6 +27,7 @@
 		99086D1DEB9AC1F7846CC884 /* HealthImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthImport.swift; sourceTree = "<group>"; };
 		A4E100000000000000000109 /* HealthTimeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthTimeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA768454973A1918054FE40 /* ArchiveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveScreen.swift; sourceTree = "<group>"; };
+		B94500F702AE859FC978E456 /* ArchiveAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveAppearance.swift; sourceTree = "<group>"; };
 		BAEBD559293AEDD42DC5A162 /* HealthZip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthZip.swift; sourceTree = "<group>"; };
 		FC426C6D7FA57DEB274CE8D0 /* HealthReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthReport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -44,6 +46,7 @@
 		436F7B3D5C99C592B3DC03C5 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B94500F702AE859FC978E456 /* ArchiveAppearance.swift */,
 				509457F1FFF98F67BFE7EF74 /* ArchiveCharts.swift */,
 				AAA768454973A1918054FE40 /* ArchiveScreen.swift */,
 				93B917CE7C76735D2E193772 /* HealthTimelineApp.swift */,
@@ -158,6 +161,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27C3F6A1AF393B786D418304 /* ArchiveAppearance.swift in Sources */,
 				F5D7C023C89113D69192D320 /* ArchiveCharts.swift in Sources */,
 				D396BB80B89423D01A4C9F44 /* ArchiveScreen.swift in Sources */,
 				74492380FC6FFE1B388496AD /* HealthTimelineApp.swift in Sources */,
@@ -202,7 +206,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = HealthTimeline/Info.plist;
@@ -210,7 +214,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.healthtimeline.native;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -224,7 +228,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = HealthTimeline/Info.plist;
@@ -232,7 +236,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.healthtimeline.native;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

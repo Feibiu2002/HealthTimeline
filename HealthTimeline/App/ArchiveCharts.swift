@@ -1,22 +1,6 @@
 import Charts
 import SwiftUI
 
-enum ArchiveStyle {
-    static let solidAccent = Color(red: 0.05, green: 0.38, blue: 0.46)
-    static let accent = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.31, green: 0.76, blue: 0.83, alpha: 1)
-            : UIColor(red: 0.05, green: 0.38, blue: 0.46, alpha: 1)
-    })
-    static let mint = Color(red: 0.48, green: 0.91, blue: 0.78)
-    static let background = Color(uiColor: .systemGroupedBackground)
-    static let card = Color(uiColor: .secondarySystemGroupedBackground)
-    static let hero = LinearGradient(
-        colors: [Color(red: 0.05, green: 0.15, blue: 0.25), Color(red: 0.06, green: 0.38, blue: 0.41)],
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
-}
-
 enum ArchiveFormat {
     static func number(_ value: Double, digits: Int = 1) -> String {
         value.formatted(.number.precision(.fractionLength(0...digits)))
@@ -68,38 +52,60 @@ struct ReportCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.headline).accessibilityAddTraits(.isHeader)
-            if let caption { Text(caption).font(.footnote).foregroundStyle(.secondary) }
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .accessibilityAddTraits(.isHeader)
+                if let caption {
+                    Text(caption)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(ArchiveStyle.card, in: RoundedRectangle(cornerRadius: 20))
+        .padding(17)
+        .archivePanel()
     }
 }
 
 struct HeadlineStat: Identifiable {
     let title: String
     let value: String
+    var symbol: String? = nil
+    var tint = ArchiveStyle.accent
     var id: String { title }
 }
 
 struct StatGrid: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let stats: [HeadlineStat]
 
     var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 143), spacing: 10)], spacing: 10) {
+        let column = dynamicTypeSize.isAccessibilitySize ? GridItem(.flexible()) : GridItem(.adaptive(minimum: 154), spacing: 12)
+        LazyVGrid(columns: [column], alignment: .leading, spacing: 12) {
             ForEach(stats) { metric in
                 VStack(alignment: .leading, spacing: 7) {
-                    Text(metric.title).font(.footnote).foregroundStyle(.secondary)
+                    if let symbol = metric.symbol {
+                        Image(systemName: symbol)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(metric.tint)
+                            .frame(width: 32, height: 32)
+                            .background(metric.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                            .accessibilityHidden(true)
+                    }
+                    Text(metric.title)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
                     Text(metric.value)
-                        .font(.system(.title3, design: .rounded, weight: .semibold).monospacedDigit())
+                        .font(.system(.title3, design: .rounded, weight: .bold).monospacedDigit())
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
-                .padding(13)
-                .background(ArchiveStyle.card, in: RoundedRectangle(cornerRadius: 16))
+                .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                .padding(14)
+                .archivePanel(cornerRadius: 22)
                 .accessibilityElement(children: .combine)
             }
         }
@@ -147,6 +153,7 @@ struct TrendCard: View {
     var bars = false
     var period: Calendar.Component = .day
     var showsClockTime = false
+    var tint = ArchiveStyle.accent
     @StateObject private var selection = ReportSelection<Date>()
 
     var body: some View {
@@ -168,15 +175,15 @@ struct TrendCard: View {
                                           xEnd: .value("结束", point.end.date.addingTimeInterval(-inset)),
                                           yStart: .value(title, min(0, point.value)),
                                           yEnd: .value(title, max(0, point.value)))
-                                .foregroundStyle(ArchiveStyle.accent)
+                                .foregroundStyle(tint)
                                 .accessibilityLabel(periodLabel(point, bucketDays: days))
                                 .accessibilityValue(valueLabel(point.value))
                         } else if series.count == 1 {
                             PointMark(x: .value("日期", point.center), y: .value(title, point.value))
-                                .foregroundStyle(ArchiveStyle.accent)
+                                .foregroundStyle(tint)
                         } else {
                             LineMark(x: .value("日期", point.center), y: .value(title, point.value))
-                                .foregroundStyle(ArchiveStyle.accent)
+                                .foregroundStyle(tint)
                         }
                     }
                     if let selected {
@@ -274,14 +281,17 @@ struct HourCard: View {
     let title: String
     let points: [HourValue]
     let unit: String
+    var tint = ArchiveStyle.accent
 
     var body: some View {
+        let fill = LinearGradient(colors: [tint, tint.opacity(0.62)], startPoint: .top, endPoint: .bottom)
         ReportCard(title, caption: unit) {
             Chart(points) { point in
                 let hour = Double(point.hour)
                 RectangleMark(xStart: .value("时段", hour + 0.08), xEnd: .value("时段", hour + 0.92),
                               yStart: .value(title, min(0, point.value)), yEnd: .value(title, max(0, point.value)))
-                    .foregroundStyle(ArchiveStyle.accent)
+                    .cornerRadius(2)
+                    .foregroundStyle(fill)
                     .accessibilityLabel("\(ArchiveFormat.hour(hour)) 时段")
                     .accessibilityValue(ArchiveFormat.measurement(point.value, unit: unit))
             }
@@ -297,7 +307,8 @@ struct HourCard: View {
                 }
             }
             .chartYAxis { AxisMarks(values: .automatic(desiredCount: 4)) }
-            .frame(height: 145)
+            .frame(height: 152)
+            .padding(.horizontal, 5)
             .accessibilityLabel(title)
         }
     }
@@ -383,7 +394,7 @@ struct EmptySection: View {
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(20)
-            .background(ArchiveStyle.card, in: RoundedRectangle(cornerRadius: 20))
+            .archivePanel()
     }
 }
 
